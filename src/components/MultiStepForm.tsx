@@ -99,9 +99,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     "Files",
   ];
 
-  console.log("labeledValues", labeledValues);
-  console.log("all valueas", values);
-
   const steps = [
     ...forms.map((x) => ({ label: x.stepLabel, comment: x.stepComment })),
     { label: "Run", comment: "Review and run" },
@@ -141,6 +138,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           {forms.map((f, ind) => (
             <Box display={ind === activeStep ? "block" : "none"}>
               <Form
+                onSubmit={() => setActiveStep((prev) => prev + 1)}
+                shouldRender={ind === activeStep}
                 initialValues={values[f.name]}
                 form={forms[ind]}
                 saveValues={(vals) =>
@@ -222,13 +221,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
               Run
             </Button>
           ) : (
-            <Button
-              onClick={() => setActiveStep((prev) => prev + 1)}
-              color="primary"
-              variant="contained"
-            >
-              Next
-            </Button>
+            <div id="submitFormButton"></div>
           )}
         </Box>
       </Box>

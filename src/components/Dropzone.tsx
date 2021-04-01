@@ -1,8 +1,6 @@
 import React, { useCallback, MouseEventHandler, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import UploadImage from "assets/upload.png";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Table from "components/Table";
 import { TableHeadCell, TableRow } from "interfaces";

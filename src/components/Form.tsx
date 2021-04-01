@@ -12,12 +12,17 @@ import CloseIcon from "@material-ui/icons/Close";
 import Checkbox from "@material-ui/core/Checkbox";
 import Dropzone from "components/Dropzone";
 import { useEffect } from "react";
+import ReactDOM from "react-dom";
+import Button from "@material-ui/core/Button";
+import { flattenFormWithPropAsValue, flattenForm } from "helpers";
 
 export interface FormProps {
   form: StepForm;
   counter: number;
   saveValues: Function;
   initialValues: InitialValues;
+  shouldRender: boolean;
+  onSubmit: Function;
 }
 
 const useStyles = makeStyles({
@@ -56,38 +61,58 @@ interface InitialValues {
   [key: string]: any;
 }
 
-const Form: React.FC<FormProps> = ({ form, counter, saveValues, initialValues }) => {
+const Form: React.FC<FormProps> = ({
+  form,
+  counter,
+  saveValues,
+  initialValues,
+  shouldRender,
+  onSubmit,
+}) => {
   const classes = useStyles();
 
-  const inValues: InitialValues = initialValues
-    ? initialValues
-    : form.inputGroups.reduce(
-        (a, b) =>
-          Object.assign(
-            Object.assign(
-              a,
-              {},
-              b.inputs.reduce((c, d) => Object.assign(c, {}, { [d.name]: d.initialValue }), {})
-            ),
-            {},
-            b.switchable && b.name ? { [b.name.toString()]: b.enabled } : {}
-          ),
-        {}
-      );
+  const inValues: InitialValues = initialValues ? initialValues : flattenForm(form);
+  const requiredValues = flattenFormWithPropAsValue(form, "required");
 
-  const { values, errors, handleSubmit, setFieldValue } = useFormik({
+  const { values, errors, handleSubmit, setFieldValue, submitCount } = useFormik({
     initialValues: inValues,
     validate: (vals) => {
-      console.log(vals);
-      return {};
+      let errObj = {};
+      Object.keys(vals).forEach((x) => {
+        if (requiredValues[x] && !vals[x]) {
+          errObj[x] = "Required";
+        }
+      });
+      return errObj;
     },
-    onSubmit: (values) => {},
+    onSubmit: (values) => {
+      onSubmit(values);
+    },
     enableReinitialize: true,
   });
 
   useEffect(() => {
     saveValues(values);
   }, [counter]);
+
+  useEffect(() => {
+    if (shouldRender) {
+      const SubmitButton = () => {
+        return (
+          <Button
+            onClick={() => {
+              handleSubmit();
+            }}
+            color="primary"
+            variant="contained"
+          >
+            Next
+          </Button>
+        );
+      };
+      ReactDOM.render(<SubmitButton></SubmitButton>, document.getElementById("submitFormButton"));
+    }
+  }, [shouldRender, values]);
 
   const DeleteIcon: any = () => {
     return <CloseIcon></CloseIcon>;
@@ -120,8 +145,11 @@ const Form: React.FC<FormProps> = ({ form, counter, saveValues, initialValues })
                 {inp.type === "text" ? (
                   <TextField
                     fullWidth
-                    label={inp.label + (inp.required ? "*" : "")}
+                    required={inp.required}
+                    label={inp.label}
                     value={values[inp.name]}
+                    error={errors[inp.name] && submitCount > 0 ? true : false}
+                    helperText={errors[inp.name]}
                     onChange={(e) => setFieldValue(inp.name, e.target.value)}
                   ></TextField>
                 ) : inp.type === "opt-list" ? (
@@ -150,7 +178,15 @@ const Form: React.FC<FormProps> = ({ form, counter, saveValues, initialValues })
                       setFieldValue(inp.name, value);
                     }}
                     getOptionLabel={(label: string) => label}
-                    renderInput={(params) => <TextField {...params} label={inp.label} />}
+                    renderInput={(params) => (
+                      <TextField
+                        required={inp.required}
+                        error={errors[inp.name] && submitCount > 0 ? true : false}
+                        helperText={errors[inp.name]}
+                        {...params}
+                        label={inp.label}
+                      />
+                    )}
                   />
                 ) : inp.type === "random-tags" ? (
                   <Autocomplete
@@ -191,6 +227,7 @@ const Form: React.FC<FormProps> = ({ form, counter, saveValues, initialValues })
                       return (
                         <TextField
                           {...modifiedParams}
+                          required={inp.required}
                           variant="standard"
                           label={inp.label}
                           fullWidth
