@@ -98,8 +98,6 @@ const Form: React.FC<FormProps> = ({
     enableReinitialize: true,
   });
 
-  console.log("eros", errors, requiredValues, values);
-
   useEffect(() => {
     saveValues(values);
   }, [counter]);
