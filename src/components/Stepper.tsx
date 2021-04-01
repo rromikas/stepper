@@ -80,9 +80,16 @@ export interface StepperProps {
   activeStep: number;
   setActiveStep: Function;
   labelsPosition: string;
+  navigable: boolean;
 }
 
-const Stepper: React.FC<StepperProps> = ({ steps, activeStep, setActiveStep, labelsPosition }) => {
+const Stepper: React.FC<StepperProps> = ({
+  steps,
+  activeStep,
+  setActiveStep,
+  labelsPosition,
+  navigable = true,
+}) => {
   const classes = useStyles({ labelsPosition });
 
   const LabelsAndComments = () => {
@@ -122,7 +129,7 @@ const Stepper: React.FC<StepperProps> = ({ steps, activeStep, setActiveStep, lab
                   ? classes.completedStep
                   : "")
               }
-              onClick={() => setActiveStep(ind)}
+              onClick={() => (navigable ? setActiveStep(ind) : {})}
             >
               {activeStep > ind ? <CheckIcon className={classes.checkIcon}></CheckIcon> : ind + 1}
             </div>

@@ -5,7 +5,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import Switch from "@material-ui/core/Switch";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import Chip from "@material-ui/core/Chip";
 import CloseIcon from "@material-ui/icons/Close";
@@ -15,6 +15,13 @@ import { useEffect } from "react";
 import ReactDOM from "react-dom";
 import Button from "@material-ui/core/Button";
 import { flattenFormWithPropAsValue, flattenForm } from "helpers";
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: "#0294F2" },
+    secondary: { main: "#38BE01" },
+  },
+});
 
 export interface FormProps {
   form: StepForm;
@@ -79,7 +86,7 @@ const Form: React.FC<FormProps> = ({
     validate: (vals) => {
       let errObj = {};
       Object.keys(vals).forEach((x) => {
-        if (requiredValues[x] && !vals[x]) {
+        if (requiredValues[x] && (!vals[x] || (typeof vals[x] === "object" && !vals[x].length))) {
           errObj[x] = "Required";
         }
       });
@@ -91,6 +98,8 @@ const Form: React.FC<FormProps> = ({
     enableReinitialize: true,
   });
 
+  console.log("eros", errors, requiredValues, values);
+
   useEffect(() => {
     saveValues(values);
   }, [counter]);
@@ -99,15 +108,17 @@ const Form: React.FC<FormProps> = ({
     if (shouldRender) {
       const SubmitButton = () => {
         return (
-          <Button
-            onClick={() => {
-              handleSubmit();
-            }}
-            color="primary"
-            variant="contained"
-          >
-            Next
-          </Button>
+          <MuiThemeProvider theme={theme}>
+            <Button
+              onClick={() => {
+                handleSubmit();
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Next
+            </Button>
+          </MuiThemeProvider>
         );
       };
       ReactDOM.render(<SubmitButton></SubmitButton>, document.getElementById("submitFormButton"));
@@ -248,6 +259,7 @@ const Form: React.FC<FormProps> = ({
                   </Box>
                 ) : inp.type === "file" ? (
                   <Dropzone
+                    error={errors[inp.name] && submitCount > 0 ? errors[inp.name] : ""}
                     files={values[inp.name]}
                     onFiles={(f, append = false) => {
                       if (append) {

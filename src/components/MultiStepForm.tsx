@@ -127,6 +127,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
         <Grid item>
           <Box pr={4}>
             <Stepper
+              navigable={false}
               activeStep={activeStep}
               setActiveStep={setActiveStep}
               steps={steps}

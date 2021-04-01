@@ -12,6 +12,7 @@ export interface DropzoneProps {
   files: Array<TableRow>;
   accept?: string;
   multiple?: boolean;
+  error: any;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
@@ -22,6 +23,7 @@ const Dropzone: React.FC<DropzoneProps> = ({
   files,
   accept,
   multiple = false,
+  error = "",
   onClick = () => {},
 }) => {
   const [mode, setMode] = useState("upload" as Mode);
@@ -102,6 +104,8 @@ const Dropzone: React.FC<DropzoneProps> = ({
             </Button>
           </Box>
         </>
+      ) : error ? (
+        <div style={{ color: "red", textAlign: "center" }}>{error}</div>
       ) : null}
     </div>
   ) : (

@@ -19,6 +19,7 @@ const Form: StepForm = {
           span: 4,
         },
         {
+          required: true,
           type: "file",
           name: "files",
           label: "Files",
