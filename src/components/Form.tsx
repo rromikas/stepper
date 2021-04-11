@@ -1,36 +1,9 @@
 import { StepForm } from "interfaces";
-import { useFormik } from "formik";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import Switch from "@material-ui/core/Switch";
-import { makeStyles, createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import Chip from "@material-ui/core/Chip";
-import CloseIcon from "@material-ui/icons/Close";
-import Checkbox from "@material-ui/core/Checkbox";
-import Dropzone from "components/Dropzone";
-import { useEffect } from "react";
-import ReactDOM from "react-dom";
-import Button from "@material-ui/core/Button";
-import { flattenFormWithPropAsValue, flattenForm } from "helpers";
 
-const theme = createMuiTheme({
-  palette: {
-    primary: { main: "#0294F2" },
-    secondary: { main: "#38BE01" },
-  },
-});
-
-export interface FormProps {
-  form: StepForm;
-  counter: number;
-  saveValues: Function;
-  initialValues: InitialValues;
-  shouldRender: boolean;
-  onSubmit: Function;
-}
+import { makeStyles } from "@material-ui/core/styles";
+import InputGroup from "components/InputGroup";
 
 const useStyles = makeStyles({
   inputGroupTitle: {
@@ -41,6 +14,7 @@ const useStyles = makeStyles({
 
   inputGroup: {
     marginBottom: 32,
+    width: "100%",
   },
 
   tag: {
@@ -48,6 +22,25 @@ const useStyles = makeStyles({
     background: "#DCDCDC",
     height: 22,
     padding: "0 5px",
+  },
+
+  chip: {
+    background: "#F5F5F5",
+    padding: "1px 10px",
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
+    margin: "5px 7px 5px 0",
+  },
+
+  chipLabel: {
+    marginRight: 6,
+    verticalAlign: "center",
+  },
+
+  chipIcon: {
+    color: "gray",
+    cursor: "pointer",
   },
 
   listOption: {
@@ -64,215 +57,74 @@ const useStyles = makeStyles({
   },
 });
 
-interface InitialValues {
-  [key: string]: any;
+export interface FormProps {
+  form: StepForm;
+  setFieldValue: Function;
+  allValues: { [key: string]: any };
+  onSubmit: Function;
+  user: any;
+  submitCount: number;
+  errors: { [ke: string]: string };
+  addGroup: Function;
+  deleteGroup: Function;
 }
 
 const Form: React.FC<FormProps> = ({
   form,
-  counter,
-  saveValues,
-  initialValues,
-  shouldRender,
-  onSubmit,
+  errors,
+  setFieldValue,
+  submitCount,
+  allValues,
+  addGroup,
+  deleteGroup,
+  user,
 }) => {
   const classes = useStyles();
+  const values = allValues[form.name];
 
-  const inValues: InitialValues = initialValues ? initialValues : flattenForm(form);
-  const requiredValues = flattenFormWithPropAsValue(form, "required");
-
-  const { values, errors, handleSubmit, setFieldValue, submitCount } = useFormik({
-    initialValues: inValues,
-    validate: (vals) => {
-      let errObj = {};
-      Object.keys(vals).forEach((x) => {
-        if (requiredValues[x] && (!vals[x] || (typeof vals[x] === "object" && !vals[x].length))) {
-          errObj[x] = "Required";
-        }
-      });
-      return errObj;
-    },
-    onSubmit: (values) => {
-      onSubmit(values);
-    },
-    enableReinitialize: true,
-  });
-
-  useEffect(() => {
-    saveValues(values);
-  }, [counter]);
-
-  useEffect(() => {
-    if (shouldRender) {
-      const SubmitButton = () => {
-        return (
-          <MuiThemeProvider theme={theme}>
-            <Button
-              onClick={() => {
-                handleSubmit();
-              }}
-              color="primary"
-              variant="contained"
-            >
-              Next
-            </Button>
-          </MuiThemeProvider>
-        );
-      };
-      ReactDOM.render(<SubmitButton></SubmitButton>, document.getElementById("submitFormButton"));
-    }
-  }, [shouldRender, values]);
-
-  const DeleteIcon: any = () => {
-    return <CloseIcon></CloseIcon>;
-  };
   return (
     <Grid container>
       {form.inputGroups.map((inpGroup, i) => (
-        <Grid item xs={12} className={classes.inputGroup}>
-          <Box display="flex" alignItems="center" className={classes.inputGroupTitle}>
-            {inpGroup.switchable && inpGroup.name ? (
-              <Box mr={2}>
-                <Switch
-                  color="primary"
-                  checked={values[inpGroup.name.toString()]}
-                  onChange={(e) =>
-                    inpGroup.name ? setFieldValue(inpGroup.name, e.target.checked) : {}
-                  }
-                />
-              </Box>
-            ) : null}
-            <div>{inpGroup.title}</div>
-          </Box>
-          <Grid
-            container
-            spacing={3}
-            justify={inpGroup.justifyContent ? inpGroup.justifyContent : "flex-start"}
-          >
-            {inpGroup.inputs.map((inp, j) => (
-              <Grid key={`inputGroup-${i}-input-${j}`} xs={12} md={inp.span} item>
-                {inp.type === "text" ? (
-                  <TextField
-                    fullWidth
-                    required={inp.required}
-                    label={inp.label}
-                    value={values[inp.name]}
-                    error={errors[inp.name] && submitCount > 0 ? true : false}
-                    helperText={errors[inp.name]}
-                    onChange={(e) => setFieldValue(inp.name, e.target.value)}
-                  ></TextField>
-                ) : inp.type === "opt-list" ? (
-                  <Box display="flex" flexWrap="wrap">
-                    {inp.options
-                      ? inp.options.map((opt, optInd) => (
-                          <ButtonBase
-                            key={`${Math.random()}-opt-${optInd}`}
-                            onClick={() => setFieldValue(inp.name, opt)}
-                            className={
-                              classes.listOption +
-                              " " +
-                              (values[inp.name] === opt ? classes.selectedListOption : "")
-                            }
-                          >
-                            {opt}
-                          </ButtonBase>
-                        ))
-                      : null}
-                  </Box>
-                ) : inp.type === "autocomplete" ? (
-                  <Autocomplete
-                    options={inp.options ? inp.options : []}
-                    value={values[inp.name]}
-                    onChange={(e, value) => {
-                      setFieldValue(inp.name, value);
-                    }}
-                    getOptionLabel={(label: string) => label}
-                    renderInput={(params) => (
-                      <TextField
-                        required={inp.required}
-                        error={errors[inp.name] && submitCount > 0 ? true : false}
-                        helperText={errors[inp.name]}
-                        {...params}
-                        label={inp.label}
-                      />
-                    )}
-                  />
-                ) : inp.type === "random-tags" ? (
-                  <Autocomplete
-                    options={inp.options ? inp.options : []}
-                    multiple
-                    freeSolo
-                    renderTags={(value, getTagProps) =>
-                      value.map((option, index) => {
-                        return (
-                          <Chip
-                            deleteIcon={DeleteIcon}
-                            classes={{ root: classes.tag }}
-                            label={option}
-                            {...getTagProps({ index })}
-                          />
-                        );
-                      })
-                    }
-                    value={values[inp.name]}
-                    ListboxComponent={() => <Box display="none"></Box>}
-                    renderInput={(params) => {
-                      const modifiedParams: any = { ...params };
-                      modifiedParams.inputProps.onKeyDown = (event: React.KeyboardEvent) => {
-                        switch (event.key) {
-                          case ",":
-                          case " ": {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            const target: any = event.target;
-                            if (target.value.length > 0) {
-                              setFieldValue(inp.name, [...values[inp.name], target.value]);
-                            }
-                            break;
-                          }
-                          default:
-                        }
-                      };
-                      return (
-                        <TextField
-                          {...modifiedParams}
-                          required={inp.required}
-                          variant="standard"
-                          label={inp.label}
-                          fullWidth
-                        />
-                      );
-                    }}
-                  />
-                ) : inp.type === "checkbox" ? (
-                  <Box display="flex" alignItems="center">
-                    <Box mr={1}>
-                      <Checkbox
-                        checked={values[inp.name]}
-                        onChange={(e) => setFieldValue(inp.name, e.target.checked)}
-                        color="primary"
-                      />
-                    </Box>
-                    <div>{inp.label}</div>
-                  </Box>
-                ) : inp.type === "file" ? (
-                  <Dropzone
-                    error={errors[inp.name] && submitCount > 0 ? errors[inp.name] : ""}
-                    files={values[inp.name]}
-                    onFiles={(f, append = false) => {
-                      if (append) {
-                        setFieldValue(inp.name, [...values[inp.name], ...f]);
-                      } else {
-                        setFieldValue(inp.name, f);
-                      }
-                    }}
-                    multiple
-                  ></Dropzone>
-                ) : null}
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
+        <>
+          {!inpGroup.visible ||
+          (inpGroup.visible && inpGroup.visible({ values: allValues, user })) ? (
+            <Box className={classes.inputGroup}>
+              {inpGroup.multipliable ? (
+                values[inpGroup.name as string].map((x, i) => (
+                  <InputGroup
+                    path={inpGroup.name + "/" + i + "/"}
+                    index={i}
+                    length={values[inpGroup.name as string].length}
+                    values={x}
+                    errors={errors}
+                    inputGroup={inpGroup}
+                    setFieldValue={setFieldValue}
+                    submitCount={submitCount}
+                    allValues={allValues}
+                    user={user}
+                    addGroup={addGroup}
+                    deleteGroup={deleteGroup}
+                  ></InputGroup>
+                ))
+              ) : (
+                <InputGroup
+                  path={""}
+                  length={1}
+                  index={i}
+                  values={values}
+                  errors={errors}
+                  inputGroup={inpGroup}
+                  setFieldValue={setFieldValue}
+                  submitCount={submitCount}
+                  allValues={allValues}
+                  user={user}
+                  addGroup={addGroup}
+                  deleteGroup={deleteGroup}
+                ></InputGroup>
+              )}
+            </Box>
+          ) : null}
+        </>
       ))}
     </Grid>
   );

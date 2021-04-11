@@ -14,7 +14,7 @@ const Form: StepForm = {
           optionsFetchUrl: "",
           span: 12,
           name: "sourceType",
-          type: "opt-list",
+          type: "options-list",
           initialValue: "Database",
           options: ["Database", "Reporting", "ETL", "Language", "Data metrics", "Others"],
         },

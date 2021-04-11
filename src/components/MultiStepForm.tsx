@@ -2,11 +2,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import Form from "./Form";
 import Grid from "@material-ui/core/Grid";
 import React, { useEffect, useState } from "react";
-import { StepForm } from "interfaces";
+import { StepForm, Summary as SummaryType } from "interfaces";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Stepper from "components/Stepper";
 import InstanceImage from "assets/instance.png";
+import Summary from "components/Summary";
+import { User as UserType } from "interfaces";
+import { flattenForm, flattenFormRequiredValues, flattenInputGroup } from "helpers";
 
 const useStyles = makeStyles({
   container: {
@@ -27,24 +30,48 @@ const useStyles = makeStyles({
 
 export interface MultiStepFormProps {
   forms: Array<StepForm>;
-  setValues: Function;
+  user: UserType;
+  saveValues: Function;
   onClose: Function;
-  values: any;
+  initialValues: any;
   title: string;
   comment: string;
+  displayStepper?: boolean;
+  summary: SummaryType;
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({
   forms,
-  setValues,
+  saveValues,
+  user,
   onClose,
-  values,
+  initialValues,
   title,
   comment,
+  displayStepper = true,
+  summary,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const classes = useStyles();
   const [counter, setCounter] = useState(0);
+  const classes = useStyles();
+  const [submitCount, setSubmitCount] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [values, setValues] = useState(null as any);
+
+  useEffect(() => {
+    let formObj = forms.reduce((a, b) => {
+      let flatened = flattenForm(b);
+      return Object.assign({}, a, { [b.name]: flatened });
+    }, {});
+
+    setValues((prev) => ({ ...prev, ...formObj }));
+  }, [forms]);
+
+  useEffect(() => {
+    if (initialValues) {
+      setValues((prev) => ({ ...prev, ...initialValues }));
+    }
+  }, [initialValues]);
 
   useEffect(() => {
     if (activeStep === forms.length) {
@@ -52,69 +79,68 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     }
   }, [activeStep]);
 
-  const labeledValues = forms.reduce(
-    (a, b) =>
-      Object.assign(
-        {},
-        a,
-        b.inputGroups.reduce(
-          (c, d) =>
-            Object.assign(
-              {},
-              Object.assign(
-                {},
-                c,
-                values[b.name]
-                  ? d.inputs.reduce(
-                      (e, f) =>
-                        Object.assign({}, e, {
-                          [f.label]: values[b.name][f.name],
-                        }),
-                      {}
-                    )
-                  : {}
-              ),
-              d.switchable ? { [d.title]: d.enabled ? "Yes" : "No" } : {}
-            ),
-          {}
-        )
-      ),
-    {}
-  );
+  let visibleForms = [] as StepForm[];
+  let activeFormName = "" as string;
 
-  const detailsLabels = [
-    "Source Type",
-    "Platform",
-    "Contact Name",
-    "Application",
-    "Tags",
-    "Direct DB connection",
-  ];
+  if (values) {
+    visibleForms = forms.filter((x) => (x.visible ? x.visible({ values, user }) : true));
+    activeFormName = activeStep < visibleForms.length ? visibleForms[activeStep].name : "";
+  }
 
-  const additionalDetailsLabels = [
-    "Workflow",
-    "Issue Tracker",
-    "Instant Messaging",
-    "Default Encode",
-    "Files",
-  ];
+  const validate = () => {
+    const requiredValues = flattenFormRequiredValues(visibleForms[activeStep], values, user);
+    let errObj = {};
+    Object.keys(values[activeFormName]).forEach((x) => {
+      if (
+        requiredValues[x] &&
+        (!values[activeFormName][x] ||
+          (typeof values[activeFormName][x] === "object" && !values[activeFormName][x].length))
+      ) {
+        errObj[x] = "Required";
+      }
+    });
+    return errObj;
+  };
 
   const steps = [
-    ...forms.map((x) => ({ label: x.stepLabel, comment: x.stepComment })),
+    ...visibleForms.map((x) => ({ label: x.stepLabel, comment: x.stepComment })),
     { label: "Run", comment: "Review and run" },
   ];
 
-  const parseValue = (key, value) => {
-    if (key === "Files") {
-      if (value) {
-        return value.length;
-      }
-      return 0;
-    } else if (key === "Tags" && value) {
-      return value.join(", ");
-    }
+  const onSave = () => {
+    saveValues(values);
+    onClose();
+  };
 
-    return value;
+  const addGroup = (path, inputGroup) => {
+    const flattenedGroup = flattenInputGroup(inputGroup);
+    const paths = path.split("/");
+    paths.pop();
+    paths.pop();
+    let obj = { ...values[activeFormName] };
+    let clone = obj;
+    for (let i = 0; i < paths.length - 1; i++) {
+      obj = obj[paths[i]];
+    }
+    const lastPath = paths[paths.length - 1];
+    obj[lastPath] = [...obj[lastPath], flattenedGroup[0]];
+
+    setValues((prev) => ({ ...prev, [activeFormName]: clone }));
+  };
+
+  const deleteGroup = (path) => {
+    const paths = path.split("/");
+    paths.pop();
+    const deleteIndex = +paths[paths.length - 1];
+    paths.pop();
+    let obj = { ...values[activeFormName] };
+    let clone = obj;
+    for (let i = 0; i < paths.length - 1; i++) {
+      obj = obj[paths[i]];
+    }
+    const lastPath = paths[paths.length - 1];
+    obj[lastPath].splice(deleteIndex, 1);
+    setValues((prev) => ({ ...prev, [activeFormName]: clone }));
   };
 
   return (
@@ -124,85 +150,51 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
         <div>{comment}</div>
       </Box>
       <Grid container>
-        <Grid item>
-          <Box pr={4}>
-            <Stepper
-              navigable={false}
-              activeStep={activeStep}
-              setActiveStep={setActiveStep}
-              steps={steps}
-              labelsPosition="left"
-            ></Stepper>
-          </Box>
-        </Grid>
+        {displayStepper ? (
+          <Grid item>
+            <Box pr={4}>
+              <Stepper
+                navigable={false}
+                activeStep={activeStep}
+                setActiveStep={setActiveStep}
+                steps={steps}
+                labelsPosition="left"
+              ></Stepper>
+            </Box>
+          </Grid>
+        ) : null}
         <Grid item xs>
-          {forms.map((f, ind) => (
-            <Box display={ind === activeStep ? "block" : "none"}>
-              <Form
-                onSubmit={() => setActiveStep((prev) => prev + 1)}
-                shouldRender={ind === activeStep}
-                initialValues={values[f.name]}
-                form={forms[ind]}
-                saveValues={(vals) =>
-                  setValues((prev) => Object.assign({}, prev, { [f.name]: vals }))
+          {activeFormName ? (
+            <Form
+              user={user}
+              setFieldValue={(path, val) => {
+                let obj = { ...values[activeFormName] };
+                let clone = obj;
+                const paths = path.split("/");
+                for (let i = 0; i < paths.length - 1; i++) {
+                  obj = obj[paths[i]];
                 }
-                counter={counter}
-              ></Form>
-            </Box>
-          ))}
-          {activeStep === forms.length ? (
-            <Box p={3}>
-              <div style={{ display: "flex", alignItems: "center", marginBottom: 40 }}>
-                <div style={{ marginRight: 20 }}>
-                  <img src={InstanceImage} width={70}></img>
-                </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>
-                    {values.metadataSource ? values.metadataSource.name : ""}
-                  </div>
-                  <div>{values.metadataSource ? values.metadataSource.description : ""}</div>
-                </div>
-              </div>
-              <div style={{ marginBottom: 30 }}>
-                <div style={{ fontSize: 22, marginBottom: 15, fontWeight: 700 }}>Details</div>
-                {detailsLabels.map((x, i) => (
-                  <div
-                    key={`details-inp-${i}`}
-                    style={{ display: "flex", alignItems: "center", marginBottom: 7 }}
-                  >
-                    <div style={{ width: 200, fontWeight: 700 }}>{x}</div>
-                    <div>: {parseValue(x, labeledValues[x])}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 22, marginBottom: 15, fontWeight: 700 }}>
-                  Additional details
-                </div>
-                {additionalDetailsLabels.map((x, i) => (
-                  <div
-                    key={`add-details-inp-${i}`}
-                    style={{ display: "flex", alignItems: "center", marginBottom: 7 }}
-                  >
-                    <div style={{ width: 200, fontWeight: 700 }}>{x}</div>
-                    <div>: {parseValue(x, labeledValues[x])}</div>
-                  </div>
-                ))}
-              </div>
-            </Box>
+                obj[paths[paths.length - 1]] = val;
+
+                setValues((prev) => ({ ...prev, [activeFormName]: clone }));
+              }}
+              onSubmit={() => {}}
+              allValues={values}
+              errors={errors[activeFormName] ? errors[activeFormName] : {}}
+              form={visibleForms[activeStep]}
+              submitCount={submitCount}
+              addGroup={addGroup}
+              deleteGroup={deleteGroup}
+            ></Form>
+          ) : null}
+
+          {activeStep === visibleForms.length ? (
+            <Summary values={values} forms={forms} {...summary}></Summary>
           ) : null}
         </Grid>
       </Grid>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Button
-          onClick={() => {
-            setCounter((prev) => prev + 1);
-            setTimeout(() => {
-              onClose();
-            }, 100);
-          }}
-          variant="outlined"
-        >
+        <Button onClick={() => onSave()} variant="outlined">
           Save
         </Button>
         <Box display="flex">
@@ -222,7 +214,23 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
               Run
             </Button>
           ) : (
-            <div id="submitFormButton"></div>
+            <div id="submitFormButton">
+              <Button
+                onClick={() => {
+                  const errs = validate();
+                  setSubmitCount((prev) => prev + 1);
+                  setErrors((prev) => ({ ...prev, [visibleForms[activeStep].name]: errs }));
+                  if (!Object.keys(errs).length) {
+                    setActiveStep((prev) => prev + 1);
+                    setSubmitCount(0);
+                  }
+                }}
+                color="primary"
+                variant="contained"
+              >
+                Next
+              </Button>
+            </div>
           )}
         </Box>
       </Box>
