@@ -6,10 +6,10 @@ import { StepForm, Summary as SummaryType } from "interfaces";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Stepper from "components/Stepper";
-import InstanceImage from "assets/instance.png";
 import Summary from "components/Summary";
 import { User as UserType } from "interfaces";
 import { flattenForm, flattenFormRequiredValues, flattenInputGroup } from "helpers";
+import Switch from "@material-ui/core/Switch";
 
 const useStyles = makeStyles({
   container: {
@@ -37,6 +37,7 @@ export interface MultiStepFormProps {
   title: string;
   comment: string;
   displayStepper?: boolean;
+  setDisplayStepper?: Function;
   summary: SummaryType;
 }
 
@@ -49,6 +50,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   title,
   comment,
   displayStepper = true,
+  setDisplayStepper = () => {},
   summary,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -145,10 +147,21 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
 
   return (
     <div className={classes.container}>
-      <Box mb={3}>
-        <div className={classes.title}>{title}</div>
-        <div>{comment}</div>
+      <Box display="flex" justifyContent="space-between" mb={3}>
+        <Box>
+          <div className={classes.title}>{title}</div>
+          <div>{comment}</div>
+        </Box>
+        <Box display="flex" alignItems="center">
+          <Box mr={2}>Show stepper</Box>
+          <Switch
+            color="primary"
+            checked={displayStepper}
+            onChange={(e) => setDisplayStepper(e.target.checked)}
+          ></Switch>
+        </Box>
       </Box>
+
       <Grid container>
         {displayStepper ? (
           <Grid item>

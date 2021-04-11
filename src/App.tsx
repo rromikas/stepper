@@ -90,11 +90,12 @@ function App() {
   const forms = formsIndex > -1 ? allForms[formsIndex].forms : null;
   const summary = formsIndex > -1 ? allForms[formsIndex].summary : null;
   const [fillingForm, setFillingForm] = useState(false);
-  const [stopped, setStopped] = useState(false);
+  const [stopped, setStopped] = useState(true);
   const [showValues, setShowValues] = useState(false);
   const [values, setValues] = useState({});
   const [user, setUser] = useState({ role: "admin" } as UserType);
   const classes = useStyles({ stopped });
+  const [displayStepper, setDisplayStepper] = useState(true);
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -125,6 +126,8 @@ function App() {
             </Box>
           ) : forms ? (
             <MultiStepForm
+              displayStepper={displayStepper}
+              setDisplayStepper={setDisplayStepper}
               user={user}
               title="Create Metadata Source"
               comment="Follow the simple 4 steps to create a source"
