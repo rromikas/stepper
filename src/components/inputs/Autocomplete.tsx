@@ -32,7 +32,7 @@ const Select: React.FC<SelectProps> = ({
       value={value}
       onChange={(e, value) => {
         if (typeof value === "string") {
-          const match = value.match(/add \"(.*)\"/i);
+          const match = value.match(/add "(.*)"/i);
           if (match && match[1]) {
             setValue(match[1]);
           } else {

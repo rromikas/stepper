@@ -65,11 +65,11 @@ const useStyles = makeStyles({
     cursor: "pointer",
     whiteSpace: "nowrap",
     padding: 20,
-    background: "#dedede",
+    background: "#eff2f5",
     borderRadius: 11,
     transition: "all 0.2s",
     "&:hover": {
-      background: "lightGray",
+      background: "#e3e7ea",
     },
   },
   title: {
@@ -80,7 +80,6 @@ const useStyles = makeStyles({
 });
 
 function App() {
-  // const forms: Array<StepForm> = V1Forms;
   const allForms = [
     { title: "V1 form", forms: V1Forms, summary: V1Summary },
     { title: "Create Term", forms: CreateTermForms, summary: TermSummary },
@@ -93,7 +92,7 @@ function App() {
   const [stopped, setStopped] = useState(true);
   const [showValues, setShowValues] = useState(false);
   const [values, setValues] = useState({});
-  const [user, setUser] = useState({ role: "admin" } as UserType);
+  const [user] = useState({ role: "admin" } as UserType);
   const classes = useStyles({ stopped });
   const [displayStepper, setDisplayStepper] = useState(true);
 

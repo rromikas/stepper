@@ -16,7 +16,7 @@ const Summary: React.FC<SummaryProps> = ({ sections, icon, title, comment, value
     <Box p={3}>
       <div style={{ display: "flex", alignItems: "center", marginBottom: 40 }}>
         <div style={{ marginRight: 20 }}>
-          <img src={icon} width={70}></img>
+          <img alt="" src={icon} width={70}></img>
         </div>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700 }}>{title}</div>

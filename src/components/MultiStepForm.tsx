@@ -54,7 +54,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   summary,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [counter, setCounter] = useState(0);
   const classes = useStyles();
   const [submitCount, setSubmitCount] = useState(0);
   const [errors, setErrors] = useState({});
@@ -75,12 +74,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     }
   }, [initialValues]);
 
-  useEffect(() => {
-    if (activeStep === forms.length) {
-      setCounter((prev) => prev + 1);
-    }
-  }, [activeStep]);
-
   let visibleForms = [] as StepForm[];
   let activeFormName = "" as string;
 
@@ -92,6 +85,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   const validate = () => {
     const requiredValues = flattenFormRequiredValues(visibleForms[activeStep], values, user);
     let errObj = {};
+
     Object.keys(values[activeFormName]).forEach((x) => {
       if (
         requiredValues[x] &&

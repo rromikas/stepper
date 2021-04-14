@@ -5,7 +5,7 @@ import AdditionalProperties1 from "./AdditionalPropertiesExportIBM";
 import AdditionalProperties2 from "./AdditionalPropertiesExportTerm2";
 import AdditionalProperties3 from "./AdditionalPropertiesImport";
 
-export default [
+const forms = [
   ImportDetailsForm,
   AdditionalProperties1,
   AdditionalProperties2,
@@ -13,3 +13,5 @@ export default [
   LoadFilesForm,
   MapColumnForm,
 ];
+
+export default forms;

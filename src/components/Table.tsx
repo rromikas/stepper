@@ -232,7 +232,7 @@ const EnhancedTable: React.FC<EnhancedTableProps> = ({
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([] as Array<string>);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
+  const [dense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (event, property) => {
@@ -277,10 +277,6 @@ const EnhancedTable: React.FC<EnhancedTableProps> = ({
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
-
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;

@@ -65,9 +65,9 @@ const Dropzone: React.FC<DropzoneProps> = ({
       onFiles(acceptedFiles, true);
       setMode("preview");
     },
-    [files]
+    [onFiles]
   );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept,
     multiple,
