@@ -10,6 +10,7 @@ export interface SelectProps {
   value: string;
   setValue: Function;
   required: boolean | undefined;
+  fixedOptions: boolean | undefined;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -21,6 +22,7 @@ const Select: React.FC<SelectProps> = ({
   value,
   setValue,
   required = false,
+  fixedOptions = false,
 }) => {
   return (
     <Autocomplete
@@ -45,8 +47,10 @@ const Select: React.FC<SelectProps> = ({
           x.toLowerCase().includes(params.inputValue.toLowerCase())
         );
 
-        if (!filtered.length && params.inputValue !== "") {
-          filtered.push(`Add "${params.inputValue}"`);
+        if (!fixedOptions) {
+          if (!filtered.length && params.inputValue !== "") {
+            filtered.push(`Add "${params.inputValue}"`);
+          }
         }
 
         return filtered;

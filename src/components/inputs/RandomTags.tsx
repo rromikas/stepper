@@ -73,15 +73,22 @@ const RandomTags: React.FC<RandomTagsProps> = ({
       renderInput={(params) => {
         const modifiedParams: any = { ...params };
         modifiedParams.inputProps.onKeyDown = (event: React.KeyboardEvent) => {
+          const addTag = () => {
+            event.preventDefault();
+            event.stopPropagation();
+            const target: any = event.target;
+            if (target.value.length > 0) {
+              setValue([...value, target.value]);
+            }
+          };
           switch (event.key) {
             case ",":
             case " ": {
-              event.preventDefault();
-              event.stopPropagation();
-              const target: any = event.target;
-              if (target.value.length > 0) {
-                setValue([...value, target.value]);
-              }
+              addTag();
+              break;
+            }
+            case "Enter": {
+              addTag();
               break;
             }
             default:

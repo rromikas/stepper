@@ -35,7 +35,7 @@ export interface MultiStepFormProps {
   onClose: Function;
   initialValues: any;
   title: string;
-  comment: string;
+  comment: Function;
   displayStepper?: boolean;
   setDisplayStepper?: Function;
   summary: SummaryType;
@@ -144,7 +144,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box>
           <div className={classes.title}>{title}</div>
-          <div>{comment}</div>
+          <div>{comment({ values })}</div>
         </Box>
         <Box display="flex" alignItems="center">
           <Box mr={2}>Show stepper</Box>

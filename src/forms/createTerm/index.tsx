@@ -1,6 +1,12 @@
 import Location from "./Location";
 import Term from "./Term";
+import Summary from "./Summary";
 
-const forms = [Location, Term];
+const form = {
+  title: "Create Term",
+  comment: () => "Follow the simple 3 steps to create a Term",
+  forms: [Location, Term],
+  summary: Summary,
+};
 
-export default forms;
+export default form;

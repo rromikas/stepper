@@ -9,12 +9,10 @@ import Modal from "@material-ui/core/Modal";
 import CloseIcon from "@material-ui/icons/Close";
 import { User as UserType, Summary as SummaryType } from "interfaces";
 import ImportExportForms from "forms/importExport";
-import CreateTermForms from "forms/createTerm";
+import CreateTermForm from "forms/createTerm";
 import ImportExportSummary from "forms/importExport/Summary";
 import Grid from "@material-ui/core/Grid";
 import ButtonBase from "@material-ui/core/ButtonBase";
-import V1Summary from "forms/formV1/Summary";
-import TermSummary from "forms/createTerm/Summary";
 
 const theme = createMuiTheme({
   palette: {
@@ -80,13 +78,10 @@ const useStyles = makeStyles({
 });
 
 function App() {
-  const allForms = [
-    { title: "V1 form", forms: V1Forms, summary: V1Summary },
-    { title: "Create Term", forms: CreateTermForms, summary: TermSummary },
-    { title: "Import / Export", forms: ImportExportForms, summary: ImportExportSummary },
-  ];
+  const a = 2;
+  const allForms = [V1Forms, CreateTermForm, ImportExportForms];
   const [formsIndex, setFormsIndex] = useState(-1);
-  const forms = formsIndex > -1 ? allForms[formsIndex].forms : null;
+  const form = formsIndex > -1 ? allForms[formsIndex] : null;
   const summary = formsIndex > -1 ? allForms[formsIndex].summary : null;
   const [fillingForm, setFillingForm] = useState(false);
   const [stopped, setStopped] = useState(true);
@@ -123,15 +118,15 @@ function App() {
                 </Button>
               </Box>
             </Box>
-          ) : forms ? (
+          ) : form ? (
             <MultiStepForm
+              title={form.title}
+              comment={form.comment}
               displayStepper={displayStepper}
               setDisplayStepper={setDisplayStepper}
               user={user}
-              title="Create Metadata Source"
-              comment="Follow the simple 4 steps to create a source"
               initialValues={values}
-              forms={forms as Array<StepForm>}
+              forms={form.forms as Array<StepForm>}
               saveValues={setValues}
               onClose={() => {
                 setStopped(true);

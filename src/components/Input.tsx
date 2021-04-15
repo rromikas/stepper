@@ -61,6 +61,7 @@ const Input: React.FC<InputProps> = ({
         ></OptionsList>
       ) : input.type === "autocomplete" ? (
         <Autocomplete
+          fixedOptions={input.fixedOptions}
           options={input.options}
           name={input.name}
           label={input.label}

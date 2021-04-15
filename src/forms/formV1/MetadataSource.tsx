@@ -29,6 +29,7 @@ const Form: StepForm = {
           label: "Platform",
           span: 4,
           type: "autocomplete",
+          fixedOptions: true,
           optionsFetchUrl: "/api/technologies",
           initialValue: "",
           options: ["Oracle", "MongoDB", "Firebase"],

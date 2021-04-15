@@ -44,7 +44,6 @@ const form: StepForm = {
         {
           label: "Sub-Category Name",
           name: "subCategory",
-          required: true,
           type: "autocomplete",
           initialValue: "",
           options: ["Option 1", "Option 2", "Option 3"],
@@ -53,7 +52,6 @@ const form: StepForm = {
         {
           label: "Sub-Category Description",
           name: "subCategoryDescription",
-          required: true,
           type: "text",
           initialValue: "",
           span: 8,
@@ -61,7 +59,6 @@ const form: StepForm = {
         {
           label: "Application",
           name: "application",
-          required: true,
           type: "autocomplete",
           initialValue: "",
           options: ["Option 1", "Option 2", "Option 3"],
@@ -70,7 +67,6 @@ const form: StepForm = {
         {
           label: "Tags",
           name: "tags",
-          required: true,
           type: "random-tags",
           initialValue: "",
           span: 8,

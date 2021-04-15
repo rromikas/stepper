@@ -45,6 +45,7 @@ export interface Input {
   name: string;
   password?: boolean;
   options?: Array<string>;
+  fixedOptions?: boolean;
   optionsFetchUrl?: string;
   span: InputSpanCols;
   validate?: Function;

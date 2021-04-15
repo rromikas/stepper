@@ -66,7 +66,8 @@ const Form: StepForm = {
           span: 4,
           type: "autocomplete",
           initialValue: "",
-          options: ["TEMP", "TEMP1", "TEMP2"],
+          fixedOptions: true,
+          options: ["INCREMENTAL", "ITERATIVE", "PARALLEL"],
           required: true,
         },
         {
@@ -75,7 +76,7 @@ const Form: StepForm = {
           span: 8,
           type: "autocomplete",
           initialValue: "",
-          options: ["INCREMENTAL", "ITERATIVE", "PARALLEL"],
+          options: ["TEMP", "TEMP1", "TEMP2"],
           required: true,
         },
       ],
