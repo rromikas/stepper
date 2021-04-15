@@ -6,6 +6,7 @@ import Table from "components/Table";
 import { TableHeadCell, TableRow } from "interfaces";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import { useEffect } from "react";
 
 export interface DropzoneProps {
   onFiles: Function;
@@ -45,12 +46,12 @@ const Dropzone: React.FC<DropzoneProps> = ({
         val > 100000 ? Math.round(val / 100000) + " MB" : Math.round(val / 1000) + " KB",
     },
     {
-      id: "lastModifiedDate",
+      id: "lastModified",
       numeric: true,
       disablePadding: false,
       label: "Created at",
       formatValue: (val) =>
-        val.toLocaleDateString("en-US", {
+        new Date(+val).toLocaleDateString("en-US", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",

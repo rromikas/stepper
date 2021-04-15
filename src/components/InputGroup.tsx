@@ -75,6 +75,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
       {inputGroup.inputs ? (
         inputGroup.inputs.map((inp, j) => (
           <Input
+            key={`inpGroup-${index}-inp-${j}`}
             path={path}
             groupIndex={index}
             inputIndex={j}
@@ -91,6 +92,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
         values[inputGroup.inputGroups[0].name].map((value, i) => (
           <Grid item xs={12}>
             <InputGroup
+              key={`inpGroup-${inputGroup.name}-${index}-inp-${i}`}
               deleteGroup={deleteGroup}
               length={values[inputGroup.inputGroups[0].name].length}
               path={path + (inputGroup.inputGroups[0].name as string) + "/" + i + "/"}
