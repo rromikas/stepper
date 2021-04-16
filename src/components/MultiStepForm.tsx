@@ -19,12 +19,20 @@ const useStyles = makeStyles({
     minHeight: 600,
     background: "white",
     padding: 42,
+    position: "relative",
   },
 
   title: {
     fontSize: 22,
     fontWeight: 700,
     marginBottom: 5,
+  },
+
+  closer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    cursor: "pointer",
   },
 });
 
@@ -39,6 +47,7 @@ export interface MultiStepFormProps {
   displayStepper?: boolean;
   setDisplayStepper?: Function;
   summary: SummaryType;
+  onCloseCompletely: Function;
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({
@@ -52,6 +61,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   displayStepper = true,
   setDisplayStepper = () => {},
   summary,
+  onCloseCompletely,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const classes = useStyles();
@@ -141,6 +151,16 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
 
   return (
     <div className={classes.container}>
+      <div
+        className={classes.closer}
+        onClick={() => {
+          if (window.confirm("Do you really want to exit? Your changes will be lost")) {
+            onCloseCompletely();
+          }
+        }}
+      >
+        &#x2715;
+      </div>
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box>
           <div className={classes.title}>{title}</div>

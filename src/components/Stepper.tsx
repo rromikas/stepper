@@ -48,6 +48,10 @@ const useStyles = makeStyles((theme) => ({
 
   completedStep: {
     border: "1px solid green",
+    fontWeight: "bold",
+  },
+  completedStepText: {
+    fontWeight: "bold",
   },
 
   stepsContainer: {
@@ -64,7 +68,12 @@ const useStyles = makeStyles((theme) => ({
   },
 
   stepLabel: {
-    fontWeight: 700,
+    fontSize: 18,
+  },
+
+  stepComment: {
+    fontSize: 14,
+    fontWeight: 400,
   },
 
   textContainer: {
@@ -91,17 +100,13 @@ const Stepper: React.FC<StepperProps> = ({
   navigable = true,
 }) => {
   const classes = useStyles({ labelsPosition });
-
   const LabelsAndComments = () => {
     return (
       <div className={classes.textContainer}>
         {steps.map((step, ind) => (
-          <div
-            style={{ marginBottom: ind === steps.length - 1 ? 0 : 20 }}
-            className={classes.stepTextContainer}
-          >
+          <div style={{ height: 87 }} className={activeStep > ind ? classes.completedStepText : ""}>
             <div className={classes.stepLabel}>{step.label}</div>
-            <div>{step.comment}</div>
+            <div className={classes.stepComment}>{step.comment}</div>
           </div>
         ))}
       </div>

@@ -128,6 +128,11 @@ function App() {
               initialValues={values}
               forms={form.forms as Array<StepForm>}
               saveValues={setValues}
+              onCloseCompletely={() => {
+                setFillingForm(false);
+                setStopped(true);
+                setFormsIndex(-1);
+              }}
               onClose={() => {
                 setStopped(true);
               }}
